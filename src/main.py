@@ -89,7 +89,6 @@ if __name__ == "__main__":
             unsupervised_loss,
             args.b_sz,
             args.unsup_loss,
-            device,
             args.learn_method,
         )
         if (epoch + 1) % 2 == 0 and args.learn_method == "unsup":
@@ -98,7 +97,6 @@ if __name__ == "__main__":
                 graphSage,
                 classification,
                 ds,
-                device,
                 args.max_vali_f1,
                 args.name,
             )
@@ -108,7 +106,6 @@ if __name__ == "__main__":
                 ds,
                 graphSage,
                 classification,
-                device,
                 args.max_vali_f1,
                 args.name,
                 epoch,

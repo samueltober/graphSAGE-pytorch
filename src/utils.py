@@ -1,7 +1,5 @@
 import sys
-import os
 import torch
-import random
 import math
 
 from sklearn.utils import shuffle
@@ -12,7 +10,7 @@ import numpy as np
 
 
 def evaluate(
-    dataCenter, ds, graphSage, classification, device, max_vali_f1, name, cur_epoch
+    dataCenter, ds, graphSage, classification, max_vali_f1, name, cur_epoch
 ):
     test_nodes = getattr(dataCenter, ds + "_test")
     val_nodes = getattr(dataCenter, ds + "_val")
@@ -32,7 +30,6 @@ def evaluate(
     _, predicts = torch.max(logists, 1)
     labels_val = labels[val_nodes]
     assert len(labels_val) == len(predicts)
-    comps = zip(labels_val, predicts.data)
 
     vali_f1 = f1_score(labels_val, predicts.cpu().data, average="micro")
     print("Validation F1:", vali_f1)
@@ -44,7 +41,6 @@ def evaluate(
         _, predicts = torch.max(logists, 1)
         labels_test = labels[test_nodes]
         assert len(labels_test) == len(predicts)
-        comps = zip(labels_test, predicts.data)
 
         test_f1 = f1_score(labels_test, predicts.cpu().data, average="micro")
         print("Test F1:", test_f1)
@@ -86,7 +82,7 @@ def get_gnn_embeddings(gnn_model, dataCenter, ds):
 
 
 def train_classification(
-    dataCenter, graphSage, classification, ds, device, max_vali_f1, name, epochs=800
+    dataCenter, graphSage, classification, ds, max_vali_f1, name, epochs=800
 ):
     print("Training Classification ...")
     c_optimizer = torch.optim.SGD(classification.parameters(), lr=0.5)
@@ -120,7 +116,7 @@ def train_classification(
             c_optimizer.zero_grad()
 
         max_vali_f1 = evaluate(
-            dataCenter, ds, graphSage, classification, device, max_vali_f1, name, epoch
+            dataCenter, ds, graphSage, classification, max_vali_f1, name, epoch
         )
 
     return classification, max_vali_f1
@@ -134,11 +130,8 @@ def apply_model(
     unsupervised_loss,
     b_sz,
     unsup_loss,
-    device,
     learn_method,
 ):
-    test_nodes = getattr(dataCenter, ds + "_test")
-    val_nodes = getattr(dataCenter, ds + "_val")
     train_nodes = getattr(dataCenter, ds + "_train")
     labels = getattr(dataCenter, ds + "_labels")
 
